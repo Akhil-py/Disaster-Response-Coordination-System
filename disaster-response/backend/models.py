@@ -8,3 +8,14 @@ class Zone(BaseModel):
     col: int
     severity: int = 0
     incident_id: Optional[str] = None
+
+
+class Incident(BaseModel):
+    id: str
+    type: str
+    zone_id: str
+    severity: int
+    spawned_at: float
+    resolved_at: Optional[float] = None
+    assigned_resource_id: Optional[str] = None
+    lives_at_risk: int
