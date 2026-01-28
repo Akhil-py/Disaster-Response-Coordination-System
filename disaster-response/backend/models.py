@@ -19,3 +19,12 @@ class Incident(BaseModel):
     resolved_at: Optional[float] = None
     assigned_resource_id: Optional[str] = None
     lives_at_risk: int
+
+
+class Resource(BaseModel):
+    id: str
+    type: str
+    zone_id: str
+    status: str = "idle"
+    assigned_incident_id: Optional[str] = None
+    cooldown_until: float = 0.0
