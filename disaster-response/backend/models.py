@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 from typing import Optional, Dict, List
+import uuid
 
 
 class Zone(BaseModel):
@@ -41,3 +42,30 @@ class GameState(BaseModel):
     connected_users: int = 0
     tick: int = 0
     activity_log: List[dict] = Field(default_factory=list)
+
+
+def initial_game_state() -> GameState:
+    zones: Dict[str, Zone] = {}
+    for row in range(10):
+        for col in range(10):
+            zone_id = f"zone_{row}_{col}"
+            zones[zone_id] = Zone(id=zone_id, row=row, col=col)
+
+    resources: Dict[str, Resource] = {}
+
+    ambulance_positions = ["zone_0_0", "zone_5_0", "zone_9_9"]
+    for zone_id in ambulance_positions:
+        rid = str(uuid.uuid4())
+        resources[rid] = Resource(id=rid, type="ambulance", zone_id=zone_id)
+
+    fire_truck_positions = ["zone_0_9", "zone_5_5", "zone_9_0"]
+    for zone_id in fire_truck_positions:
+        rid = str(uuid.uuid4())
+        resources[rid] = Resource(id=rid, type="fire_truck", zone_id=zone_id)
+
+    shelter_positions = ["zone_2_2", "zone_7_7"]
+    for zone_id in shelter_positions:
+        rid = str(uuid.uuid4())
+        resources[rid] = Resource(id=rid, type="shelter", zone_id=zone_id)
+
+    return GameState(zones=zones, resources=resources)
