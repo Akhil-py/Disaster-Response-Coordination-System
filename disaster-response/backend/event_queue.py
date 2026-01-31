@@ -1,6 +1,9 @@
 import asyncio
+import logging
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Optional, Callable, Awaitable
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -24,6 +27,7 @@ async def enqueue_tick(tick: int) -> None:
     if event_queue.qsize() > 100:
         try:
             event_queue.get_nowait()
+            logger.warning("Event queue overflow — dropped oldest event")
         except asyncio.QueueEmpty:
             pass
     await event_queue.put(SimTick(tick=tick))
@@ -35,6 +39,7 @@ async def enqueue_action(action_type: str, resource_id: str = None, zone_id: str
     if event_queue.qsize() > 100:
         try:
             event_queue.get_nowait()
+            logger.warning("Event queue overflow — dropped oldest event")
         except asyncio.QueueEmpty:
             pass
     await event_queue.put(UserAction(
@@ -43,3 +48,20 @@ async def enqueue_action(action_type: str, resource_id: str = None, zone_id: str
         zone_id=zone_id,
         arrival_order=_action_counter,
     ))
+
+
+async def consumer_loop(
+    on_tick: Callable[[], Awaitable[None]],
+    on_action: Callable[[UserAction], Awaitable[None]],
+) -> None:
+    while True:
+        event = await event_queue.get()
+        try:
+            if isinstance(event, SimTick):
+                await on_tick()
+            elif isinstance(event, UserAction):
+                await on_action(event)
+        except Exception as e:
+            logger.error(f"Error processing event: {e}")
+        finally:
+            event_queue.task_done()
