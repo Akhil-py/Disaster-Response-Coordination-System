@@ -13,6 +13,9 @@ MAX_ACTIVE_INCIDENTS = 5
 SPAWN_CHANCE = 0.3
 INCIDENT_TYPE_WEIGHTS = [("medical", 0.40), ("fire", 0.35), ("collapse", 0.25)]
 ESCALATION_THRESHOLD = 10.0
+FAIL_TICKS_AT_MAX = 2
+
+_severity4_tick_counts: dict[str, int] = {}
 
 
 def _pick_incident_type() -> str:
@@ -69,6 +72,24 @@ def _escalate_incidents(game_state: GameState) -> None:
             game_state.zones[incident.zone_id].severity = incident.severity
 
 
+def _auto_fail_incidents(game_state: GameState) -> None:
+    to_remove = []
+    for incident in list(game_state.incidents.values()):
+        if incident.severity >= 4 and incident.assigned_resource_id is None:
+            count = _severity4_tick_counts.get(incident.id, 0) + 1
+            _severity4_tick_counts[incident.id] = count
+            if count >= FAIL_TICKS_AT_MAX:
+                game_state.lives_lost += incident.lives_at_risk
+                game_state.zones[incident.zone_id].severity = 0
+                game_state.zones[incident.zone_id].incident_id = None
+                to_remove.append(incident.id)
+
+    for iid in to_remove:
+        del game_state.incidents[iid]
+        _severity4_tick_counts.pop(iid, None)
+        game_state.resolved_incidents += 1
+
+
 async def simulation_loop(game_state: GameState) -> None:
     while True:
         await asyncio.sleep(TICK_INTERVAL)
@@ -79,3 +100,4 @@ async def simulation_loop(game_state: GameState) -> None:
 def process_tick(game_state: GameState) -> None:
     _spawn_incident(game_state)
     _escalate_incidents(game_state)
+    _auto_fail_incidents(game_state)
