@@ -12,6 +12,7 @@ TICK_INTERVAL = 2.0
 MAX_ACTIVE_INCIDENTS = 5
 SPAWN_CHANCE = 0.3
 INCIDENT_TYPE_WEIGHTS = [("medical", 0.40), ("fire", 0.35), ("collapse", 0.25)]
+ESCALATION_THRESHOLD = 10.0
 
 
 def _pick_incident_type() -> str:
@@ -59,6 +60,15 @@ def _spawn_incident(game_state: GameState) -> None:
     game_state.total_incidents += 1
 
 
+def _escalate_incidents(game_state: GameState) -> None:
+    now = time.time()
+    for incident in list(game_state.incidents.values()):
+        age = now - incident.spawned_at
+        if age > ESCALATION_THRESHOLD and incident.severity < 4:
+            incident.severity = min(incident.severity + 1, 4)
+            game_state.zones[incident.zone_id].severity = incident.severity
+
+
 async def simulation_loop(game_state: GameState) -> None:
     while True:
         await asyncio.sleep(TICK_INTERVAL)
@@ -68,3 +78,4 @@ async def simulation_loop(game_state: GameState) -> None:
 
 def process_tick(game_state: GameState) -> None:
     _spawn_incident(game_state)
+    _escalate_incidents(game_state)
