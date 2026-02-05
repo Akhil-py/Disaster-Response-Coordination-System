@@ -121,6 +121,14 @@ def _resolve_assigned_incidents(game_state: GameState) -> None:
         game_state.resolved_incidents += 1
 
 
+def _update_cooldowns(game_state: GameState) -> None:
+    now = time.time()
+    for resource in game_state.resources.values():
+        if resource.status == "returning" and now >= resource.cooldown_until:
+            resource.status = "idle"
+            resource.cooldown_until = 0.0
+
+
 def record_assignment_time(incident_id: str) -> None:
     _assignment_times[incident_id] = time.time()
 
@@ -136,4 +144,5 @@ def process_tick(game_state: GameState) -> None:
     _spawn_incident(game_state)
     _escalate_incidents(game_state)
     _resolve_assigned_incidents(game_state)
+    _update_cooldowns(game_state)
     _auto_fail_incidents(game_state)
