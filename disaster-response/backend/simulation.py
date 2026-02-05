@@ -14,8 +14,11 @@ SPAWN_CHANCE = 0.3
 INCIDENT_TYPE_WEIGHTS = [("medical", 0.40), ("fire", 0.35), ("collapse", 0.25)]
 ESCALATION_THRESHOLD = 10.0
 FAIL_TICKS_AT_MAX = 2
+RESOLVE_TIME = 5.0
+COOLDOWN_DURATION = 8.0
 
 _severity4_tick_counts: dict[str, int] = {}
+_assignment_times: dict[str, float] = {}
 
 
 def _pick_incident_type() -> str:
@@ -90,6 +93,38 @@ def _auto_fail_incidents(game_state: GameState) -> None:
         game_state.resolved_incidents += 1
 
 
+def _resolve_assigned_incidents(game_state: GameState) -> None:
+    now = time.time()
+    to_remove = []
+    for incident in list(game_state.incidents.values()):
+        if incident.assigned_resource_id is None:
+            continue
+        assign_time = _assignment_times.get(incident.id)
+        if assign_time is None:
+            continue
+        if now - assign_time >= RESOLVE_TIME:
+            game_state.lives_saved += incident.lives_at_risk
+            resource = game_state.resources.get(incident.assigned_resource_id)
+            if resource:
+                resource.status = "returning"
+                resource.cooldown_until = now + COOLDOWN_DURATION
+                resource.assigned_incident_id = None
+            game_state.zones[incident.zone_id].severity = 0
+            game_state.zones[incident.zone_id].incident_id = None
+            incident.resolved_at = now
+            to_remove.append(incident.id)
+
+    for iid in to_remove:
+        del game_state.incidents[iid]
+        _assignment_times.pop(iid, None)
+        _severity4_tick_counts.pop(iid, None)
+        game_state.resolved_incidents += 1
+
+
+def record_assignment_time(incident_id: str) -> None:
+    _assignment_times[incident_id] = time.time()
+
+
 async def simulation_loop(game_state: GameState) -> None:
     while True:
         await asyncio.sleep(TICK_INTERVAL)
@@ -100,4 +135,5 @@ async def simulation_loop(game_state: GameState) -> None:
 def process_tick(game_state: GameState) -> None:
     _spawn_incident(game_state)
     _escalate_incidents(game_state)
+    _resolve_assigned_incidents(game_state)
     _auto_fail_incidents(game_state)
