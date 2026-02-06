@@ -16,9 +16,21 @@ ESCALATION_THRESHOLD = 10.0
 FAIL_TICKS_AT_MAX = 2
 RESOLVE_TIME = 5.0
 COOLDOWN_DURATION = 8.0
+MAX_LOG_ENTRIES = 50
 
 _severity4_tick_counts: dict[str, int] = {}
 _assignment_times: dict[str, float] = {}
+
+
+def _add_log(game_state: GameState, message: str, log_type: str) -> None:
+    entry = {
+        "timestamp": time.time(),
+        "message": message,
+        "type": log_type,
+    }
+    game_state.activity_log.append(entry)
+    if len(game_state.activity_log) > MAX_LOG_ENTRIES:
+        game_state.activity_log = game_state.activity_log[-MAX_LOG_ENTRIES:]
 
 
 def _pick_incident_type() -> str:
@@ -65,14 +77,26 @@ def _spawn_incident(game_state: GameState) -> None:
     game_state.zones[zone.id].severity = 1
     game_state.total_incidents += 1
 
+    _add_log(
+        game_state,
+        f"{incident_type.upper()} incident at {zone.id} — {lives} lives at risk",
+        "spawn",
+    )
+
 
 def _escalate_incidents(game_state: GameState) -> None:
     now = time.time()
     for incident in list(game_state.incidents.values()):
         age = now - incident.spawned_at
         if age > ESCALATION_THRESHOLD and incident.severity < 4:
+            old_severity = incident.severity
             incident.severity = min(incident.severity + 1, 4)
             game_state.zones[incident.zone_id].severity = incident.severity
+            _add_log(
+                game_state,
+                f"{incident.type.upper()} at {incident.zone_id} escalated to severity {incident.severity}",
+                "escalate",
+            )
 
 
 def _auto_fail_incidents(game_state: GameState) -> None:
@@ -85,12 +109,17 @@ def _auto_fail_incidents(game_state: GameState) -> None:
                 game_state.lives_lost += incident.lives_at_risk
                 game_state.zones[incident.zone_id].severity = 0
                 game_state.zones[incident.zone_id].incident_id = None
-                to_remove.append(incident.id)
+                to_remove.append(incident)
 
-    for iid in to_remove:
-        del game_state.incidents[iid]
-        _severity4_tick_counts.pop(iid, None)
+    for incident in to_remove:
+        del game_state.incidents[incident.id]
+        _severity4_tick_counts.pop(incident.id, None)
         game_state.resolved_incidents += 1
+        _add_log(
+            game_state,
+            f"{incident.type.upper()} at {incident.zone_id} failed — {incident.lives_at_risk} lives lost",
+            "escalate",
+        )
 
 
 def _resolve_assigned_incidents(game_state: GameState) -> None:
@@ -112,13 +141,18 @@ def _resolve_assigned_incidents(game_state: GameState) -> None:
             game_state.zones[incident.zone_id].severity = 0
             game_state.zones[incident.zone_id].incident_id = None
             incident.resolved_at = now
-            to_remove.append(incident.id)
+            to_remove.append(incident)
 
-    for iid in to_remove:
-        del game_state.incidents[iid]
-        _assignment_times.pop(iid, None)
-        _severity4_tick_counts.pop(iid, None)
+    for incident in to_remove:
+        del game_state.incidents[incident.id]
+        _assignment_times.pop(incident.id, None)
+        _severity4_tick_counts.pop(incident.id, None)
         game_state.resolved_incidents += 1
+        _add_log(
+            game_state,
+            f"{incident.type.upper()} at {incident.zone_id} resolved — {incident.lives_at_risk} lives saved",
+            "resolve",
+        )
 
 
 def _update_cooldowns(game_state: GameState) -> None:
