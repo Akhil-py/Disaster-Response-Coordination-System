@@ -42,3 +42,17 @@ def resolve_conflict(resource_id: str, game_state: GameState) -> tuple[UserActio
     winner = sorted_actions[0]
     losers = sorted_actions[1:]
     return (winner, losers)
+
+
+def log_conflict_entries(losers: list[UserAction], game_state: GameState) -> None:
+    for loser in losers:
+        resource = game_state.resources.get(loser.resource_id)
+        resource_type = resource.type if resource else "unknown"
+        entry = {
+            "timestamp": time.time(),
+            "message": f"Resource {resource_type} reassigned to higher priority incident",
+            "type": "conflict",
+        }
+        game_state.activity_log.append(entry)
+        if len(game_state.activity_log) > 50:
+            game_state.activity_log = game_state.activity_log[-50:]
