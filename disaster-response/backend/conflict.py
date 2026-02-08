@@ -22,3 +22,23 @@ def clear_pending() -> None:
 
 def get_pending(resource_id: str) -> list[UserAction]:
     return _pending_assigns.get(resource_id, [])
+
+
+def resolve_conflict(resource_id: str, game_state: GameState) -> tuple[UserAction, list[UserAction]]:
+    actions = _pending_assigns.get(resource_id, [])
+    if len(actions) <= 1:
+        return (actions[0] if actions else None, [])
+
+    def sort_key(action: UserAction) -> tuple:
+        zone = game_state.zones.get(action.zone_id)
+        incident_severity = 0
+        if zone and zone.incident_id:
+            incident = game_state.incidents.get(zone.incident_id)
+            if incident:
+                incident_severity = incident.severity
+        return (-incident_severity, action.arrival_order)
+
+    sorted_actions = sorted(actions, key=sort_key)
+    winner = sorted_actions[0]
+    losers = sorted_actions[1:]
+    return (winner, losers)
