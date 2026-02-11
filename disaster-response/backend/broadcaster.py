@@ -47,3 +47,4 @@ async def broadcast(game_state: GameState) -> None:
             dead.append(ws)
     for ws in dead:
         active_connections.discard(ws)
+        logger.debug("Removed dead WebSocket connection silently")
