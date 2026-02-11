@@ -1,6 +1,10 @@
+import json
+import logging
 from fastapi import WebSocket
 from typing import Set
 from models import GameState
+
+logger = logging.getLogger(__name__)
 
 active_connections: Set[WebSocket] = set()
 
@@ -26,3 +30,20 @@ def serialize_state(game_state: GameState) -> dict:
         "tick": game_state.tick,
         "activity_log": game_state.activity_log,
     }
+
+
+async def broadcast(game_state: GameState) -> None:
+    if not active_connections:
+        return
+    message = json.dumps({
+        "type": "state_sync",
+        "payload": serialize_state(game_state),
+    })
+    dead = []
+    for ws in active_connections:
+        try:
+            await ws.send_text(message)
+        except Exception:
+            dead.append(ws)
+    for ws in dead:
+        active_connections.discard(ws)
