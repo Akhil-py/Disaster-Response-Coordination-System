@@ -30,6 +30,12 @@ async def health():
     return serialize_state(game_state)
 
 
+async def _handle_disconnect(ws: WebSocket) -> None:
+    remove_connection(ws)
+    game_state.connected_users = max(0, game_state.connected_users - 1)
+    await broadcast(game_state)
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
@@ -47,8 +53,6 @@ async def websocket_endpoint(ws: WebSocket):
         while True:
             data = await ws.receive_text()
     except WebSocketDisconnect:
-        remove_connection(ws)
-        game_state.connected_users = max(0, game_state.connected_users - 1)
+        await _handle_disconnect(ws)
     except Exception:
-        remove_connection(ws)
-        game_state.connected_users = max(0, game_state.connected_users - 1)
+        await _handle_disconnect(ws)
