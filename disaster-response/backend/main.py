@@ -1,14 +1,78 @@
+import asyncio
 import json
 import logging
+import time
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from models import initial_game_state
 from broadcaster import serialize_state, add_connection, remove_connection, broadcast, active_connections
-from event_queue import enqueue_action
+from event_queue import enqueue_action, consumer_loop, UserAction
+from simulation import simulation_loop, process_tick, record_assignment_time, _add_log
+from conflict import register_assign, has_conflict, resolve_conflict, log_conflict_entries, clear_pending
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Disaster Response Coordination")
+game_state = initial_game_state()
+
+
+async def _on_tick() -> None:
+    process_tick(game_state)
+    await broadcast(game_state)
+
+
+async def _on_action(action: UserAction) -> None:
+    if action.action_type == "assign":
+        resource = game_state.resources.get(action.resource_id)
+        if not resource:
+            return
+        if resource.status != "idle":
+            return
+
+        zone = game_state.zones.get(action.zone_id)
+        if not zone:
+            return
+        if not zone.incident_id:
+            return
+
+        incident = game_state.incidents.get(zone.incident_id)
+        if not incident:
+            return
+        if incident.assigned_resource_id is not None:
+            return
+
+        register_assign(action)
+        if has_conflict(action.resource_id):
+            winner, losers = resolve_conflict(action.resource_id, game_state)
+            log_conflict_entries(losers, game_state)
+            action = winner
+
+        resource.status = "responding"
+        resource.assigned_incident_id = incident.id
+        resource.zone_id = action.zone_id
+        incident.assigned_resource_id = resource.id
+        record_assignment_time(incident.id)
+
+        _add_log(
+            game_state,
+            f"{resource.type.upper()} assigned to {incident.type} at {zone.id}",
+            "assign",
+        )
+        clear_pending()
+
+    await broadcast(game_state)
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    sim_task = asyncio.create_task(simulation_loop(game_state))
+    queue_task = asyncio.create_task(consumer_loop(_on_tick, _on_action))
+    yield
+    sim_task.cancel()
+    queue_task.cancel()
+
+
+app = FastAPI(title="Disaster Response Coordination", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,8 +81,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-game_state = initial_game_state()
 
 
 @app.get("/")
