@@ -19,3 +19,9 @@ export const RESOURCE_ICONS = {
   fire_truck: '🔥',
   shelter: '⌂',
 };
+
+export const INCIDENT_COLORS = {
+  fire: '#ff4400',
+  collapse: '#ff9900',
+  medical: '#ff0066',
+};
