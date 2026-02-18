@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { MESSAGE_TYPES } from '../utils/constants';
 
 const WS_URL = 'ws://localhost:8000/ws';
 
@@ -15,6 +16,17 @@ export default function useGameSocket() {
 
       ws.onopen = () => {
         setConnected(true);
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const msg = JSON.parse(event.data);
+          if (msg.type === MESSAGE_TYPES.STATE_SYNC) {
+            setGameState(msg.payload);
+          }
+        } catch (e) {
+          // ignore malformed messages
+        }
       };
 
       ws.onclose = () => {
