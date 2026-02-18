@@ -23,6 +23,14 @@ export default function useGameSocket() {
           const msg = JSON.parse(event.data);
           if (msg.type === MESSAGE_TYPES.STATE_SYNC) {
             setGameState(msg.payload);
+            if (msg.payload.activity_log) {
+              setActivityLog(msg.payload.activity_log.slice(-10).reverse());
+            }
+          } else if (msg.type === MESSAGE_TYPES.ACTIVITY) {
+            setActivityLog((prev) => {
+              const updated = [msg.payload, ...prev];
+              return updated.slice(0, 10);
+            });
           }
         } catch (e) {
           // ignore malformed messages
