@@ -67,5 +67,14 @@ export default function useGameSocket() {
     };
   }, []);
 
-  return { gameState, activityLog, connected };
+  const sendAssign = useCallback((resourceId, zoneId) => {
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      wsRef.current.send(JSON.stringify({
+        type: MESSAGE_TYPES.ASSIGN,
+        payload: { resource_id: resourceId, zone_id: zoneId },
+      }));
+    }
+  }, []);
+
+  return { gameState, activityLog, sendAssign, connected };
 }
