@@ -2,15 +2,20 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { MESSAGE_TYPES } from '../utils/constants';
 
 const WS_URL = 'ws://localhost:8000/ws';
+const RECONNECT_DELAY = 3000;
 
 export default function useGameSocket() {
   const [gameState, setGameState] = useState(null);
   const [activityLog, setActivityLog] = useState([]);
   const [connected, setConnected] = useState(false);
   const wsRef = useRef(null);
+  const reconnectTimer = useRef(null);
 
   useEffect(() => {
+    let unmounted = false;
+
     function connect() {
+      if (unmounted) return;
       const ws = new WebSocket(WS_URL);
       wsRef.current = ws;
 
@@ -39,6 +44,9 @@ export default function useGameSocket() {
 
       ws.onclose = () => {
         setConnected(false);
+        if (!unmounted) {
+          reconnectTimer.current = setTimeout(connect, RECONNECT_DELAY);
+        }
       };
 
       ws.onerror = () => {
@@ -49,6 +57,10 @@ export default function useGameSocket() {
     connect();
 
     return () => {
+      unmounted = true;
+      if (reconnectTimer.current) {
+        clearTimeout(reconnectTimer.current);
+      }
       if (wsRef.current) {
         wsRef.current.close();
       }
