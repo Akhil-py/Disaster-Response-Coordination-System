@@ -1,0 +1,7 @@
+.zone-cell {
+  cursor: pointer;
+}
+
+.zone-cell:hover {
+  filter: brightness(1.3);
+}
