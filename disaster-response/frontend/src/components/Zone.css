@@ -1,5 +1,6 @@
 .zone-cell {
   cursor: pointer;
+  transition: fill 0.5s ease;
 }
 
 .zone-cell:hover {
