@@ -1,3 +1,23 @@
 .resource-group {
   transition: opacity 0.3s ease;
 }
+
+.resource-pulsing {
+  animation: resource-pulse 1s ease-in-out infinite;
+}
+
+@keyframes resource-pulse {
+  0% { transform-origin: center; transform: scale(1); }
+  50% { transform-origin: center; transform: scale(1.2); }
+  100% { transform-origin: center; transform: scale(1); }
+}
+
+.resource-selected-ring {
+  animation: ring-glow 1s ease-in-out infinite;
+}
+
+@keyframes ring-glow {
+  0% { stroke-opacity: 1; }
+  50% { stroke-opacity: 0.4; }
+  100% { stroke-opacity: 1; }
+}
