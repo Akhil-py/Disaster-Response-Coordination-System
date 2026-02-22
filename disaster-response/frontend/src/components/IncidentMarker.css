@@ -1,0 +1,18 @@
+.incident-marker {
+  pointer-events: none;
+}
+
+.incident-critical-glow {
+  animation: critical-pulse 0.8s ease-in-out infinite;
+}
+
+@keyframes critical-pulse {
+  0% { stroke-opacity: 1; r: 20; }
+  50% { stroke-opacity: 0.3; r: 26; }
+  100% { stroke-opacity: 1; r: 20; }
+}
+
+.incident-label {
+  font-family: 'Share Tech Mono', monospace;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
