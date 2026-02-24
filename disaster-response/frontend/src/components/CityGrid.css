@@ -1,0 +1,23 @@
+.city-grid-panel {
+  background: #0d1224;
+  border: 1px solid #1e2d4a;
+  border-radius: 4px;
+  padding: 16px;
+  box-shadow: 0 0 20px #0088ff22;
+}
+
+.city-grid-header {
+  font-family: 'Share Tech Mono', monospace;
+  color: #e0e8ff;
+  font-size: 14px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.city-grid-svg {
+  display: block;
+}
