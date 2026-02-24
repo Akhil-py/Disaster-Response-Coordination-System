@@ -1,6 +1,7 @@
 import React from 'react';
 import Zone from './Zone';
 import Resource from './Resource';
+import IncidentMarker from './IncidentMarker';
 import './CityGrid.css';
 
 const GRID_SIZE = 600;
@@ -10,6 +11,7 @@ export default function CityGrid({ gameState, selectedResourceId, setSelectedRes
 
   const zones = Object.values(gameState.zones || {});
   const resources = Object.values(gameState.resources || {});
+  const incidents = Object.values(gameState.incidents || {});
 
   const handleZoneClick = (zoneId) => {
     // placeholder for assign logic
@@ -29,6 +31,9 @@ export default function CityGrid({ gameState, selectedResourceId, setSelectedRes
       >
         {zones.map((zone) => (
           <Zone key={zone.id} zone={zone} onClick={handleZoneClick} />
+        ))}
+        {incidents.map((incident) => (
+          <IncidentMarker key={incident.id} incident={incident} />
         ))}
         {resources.map((resource) => (
           <Resource
