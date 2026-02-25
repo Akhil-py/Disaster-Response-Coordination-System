@@ -14,7 +14,10 @@ export default function CityGrid({ gameState, selectedResourceId, setSelectedRes
   const incidents = Object.values(gameState.incidents || {});
 
   const handleZoneClick = (zoneId) => {
-    // placeholder for assign logic
+    if (selectedResourceId) {
+      sendAssign(selectedResourceId, zoneId);
+      setSelectedResourceId(null);
+    }
   };
 
   return (
