@@ -1,0 +1,63 @@
+.stats-bar {
+  background: #0d1224;
+  border: 1px solid #1e2d4a;
+  border-radius: 4px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-shadow: 0 0 20px #0088ff22;
+}
+
+.stats-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 16px;
+  color: #0088ff;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.stats-values {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+}
+
+.stat-item {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 13px;
+  color: #4a6080;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stat-value {
+  color: #e0e8ff;
+}
+
+.stat-green {
+  color: #00cc66;
+}
+
+.stat-red {
+  color: #ff3333;
+}
+
+.connection-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-green {
+  background: #00cc66;
+  box-shadow: 0 0 6px #00cc66;
+}
+
+.dot-yellow {
+  background: #ffaa00;
+  box-shadow: 0 0 6px #ffaa00;
+}
