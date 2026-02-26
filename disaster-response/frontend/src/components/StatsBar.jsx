@@ -14,6 +14,7 @@ export default function StatsBar({ gameState, connected }) {
   }
 
   const connectedUsers = gameState.connected_users || 0;
+  const activeIncidents = Object.keys(gameState.incidents || {}).length;
 
   return (
     <div className="stats-bar">
@@ -28,6 +29,12 @@ export default function StatsBar({ gameState, connected }) {
         </span>
         <span className="stat-item">
           Lives Lost: <span className="stat-value stat-red">{gameState.lives_lost}</span>
+        </span>
+        <span className="stat-item">
+          Active Incidents: <span className="stat-value stat-amber">{activeIncidents}</span>
+        </span>
+        <span className="stat-item">
+          Tick: <span className="stat-value">{gameState.tick}</span>
         </span>
       </div>
     </div>

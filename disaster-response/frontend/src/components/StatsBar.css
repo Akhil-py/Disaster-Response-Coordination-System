@@ -45,6 +45,10 @@
   color: #ff3333;
 }
 
+.stat-amber {
+  color: #ffaa00;
+}
+
 .connection-dot {
   width: 8px;
   height: 8px;
