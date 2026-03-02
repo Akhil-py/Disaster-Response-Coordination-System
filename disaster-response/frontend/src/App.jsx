@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import useGameSocket from './hooks/useGameSocket';
 import StatsBar from './components/StatsBar';
 import CityGrid from './components/CityGrid';
 import ActivityFeed from './components/ActivityFeed';
 import './App.css';
 
 export default function App() {
+  const { gameState, activityLog, sendAssign, connected } = useGameSocket();
   const [selectedResourceId, setSelectedResourceId] = useState(null);
 
   useEffect(() => {
@@ -19,17 +21,17 @@ export default function App() {
 
   return (
     <div className="app">
-      <StatsBar gameState={null} connected={false} />
+      <StatsBar gameState={gameState} connected={connected} />
       <div className="app-body">
         <div className="app-grid-container">
           <CityGrid
-            gameState={null}
+            gameState={gameState}
             selectedResourceId={selectedResourceId}
             setSelectedResourceId={setSelectedResourceId}
-            sendAssign={() => {}}
+            sendAssign={sendAssign}
           />
         </div>
-        <ActivityFeed activityLog={[]} />
+        <ActivityFeed activityLog={activityLog} />
       </div>
     </div>
   );
