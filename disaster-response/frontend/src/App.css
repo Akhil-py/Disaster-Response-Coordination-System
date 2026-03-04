@@ -1,3 +1,16 @@
+:root {
+  --bg-primary: #0a0e1a;
+  --bg-panel: #0d1224;
+  --border-panel: #1e2d4a;
+  --text-primary: #e0e8ff;
+  --text-dim: #4a6080;
+  --accent-blue: #0088ff;
+  --accent-green: #00cc66;
+  --accent-red: #ff3333;
+  --accent-amber: #ffaa00;
+  --panel-glow: 0 0 20px #0088ff22;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -6,13 +19,13 @@
 
 body {
   font-family: 'Share Tech Mono', monospace;
-  background: #0a0e1a;
-  color: #e0e8ff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
 }
 
 .app {
-  background: #0a0e1a;
+  background: var(--bg-primary);
   min-height: 100vh;
   padding: 16px;
   display: flex;
