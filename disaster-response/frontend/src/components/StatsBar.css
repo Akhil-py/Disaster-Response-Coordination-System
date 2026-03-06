@@ -39,14 +39,17 @@
 
 .stat-green {
   color: #00cc66;
+  text-shadow: 0 0 8px #00cc6644;
 }
 
 .stat-red {
   color: #ff3333;
+  text-shadow: 0 0 8px #ff333344;
 }
 
 .stat-amber {
   color: #ffaa00;
+  text-shadow: 0 0 8px #ffaa0044;
 }
 
 .connection-dot {
