@@ -3,7 +3,8 @@
   border: 1px solid #1e2d4a;
   border-radius: 4px;
   width: 280px;
-  height: 100%;
+  min-width: 280px;
+  height: calc(100vh - 108px);
   display: flex;
   flex-direction: column;
   box-shadow: 0 0 20px #0088ff22;
