@@ -1,15 +1,17 @@
 .resource-group {
   transition: opacity 0.3s ease;
+  transform-box: fill-box;
 }
 
 .resource-pulsing {
   animation: resource-pulse 1s ease-in-out infinite;
+  transform-origin: center;
 }
 
 @keyframes resource-pulse {
-  0% { transform-origin: center; transform: scale(1); }
-  50% { transform-origin: center; transform: scale(1.2); }
-  100% { transform-origin: center; transform: scale(1); }
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 .resource-selected-ring {
