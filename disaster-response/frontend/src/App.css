@@ -17,6 +17,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
 body {
   font-family: 'Share Tech Mono', monospace;
   background: var(--bg-primary);
@@ -24,9 +29,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+#root {
+  height: 100%;
+}
+
 .app {
   background: var(--bg-primary);
-  min-height: 100vh;
+  height: 100vh;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -38,8 +47,17 @@ body {
   display: flex;
   gap: 16px;
   flex: 1;
+  min-height: 0;
 }
 
 .app-grid-container {
   flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+::selection {
+  background: var(--accent-blue);
+  color: var(--bg-primary);
 }
