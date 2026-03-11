@@ -1,5 +1,5 @@
 import React from 'react';
-import { INCIDENT_COLORS, RESOURCE_ICONS } from '../utils/constants';
+import { INCIDENT_COLORS } from '../utils/constants';
 import { zoneIdToCoords } from '../utils/helpers';
 import './IncidentMarker.css';
 

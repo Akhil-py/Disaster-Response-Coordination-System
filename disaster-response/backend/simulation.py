@@ -89,7 +89,6 @@ def _escalate_incidents(game_state: GameState) -> None:
     for incident in list(game_state.incidents.values()):
         age = now - incident.spawned_at
         if age > ESCALATION_THRESHOLD and incident.severity < 4:
-            old_severity = incident.severity
             incident.severity = min(incident.severity + 1, 4)
             game_state.zones[incident.zone_id].severity = incident.severity
             _add_log(
