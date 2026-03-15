@@ -86,3 +86,18 @@ The frontend runs at http://localhost:5173.
 6. The resource will respond for 5 seconds, then resolve the incident
 7. Unresolved incidents escalate in severity and eventually fail
 8. Press Escape to deselect a resource
+
+## Multiplayer Demo
+
+To see the real-time multiplayer sync in action:
+
+1. Start the backend and frontend servers as described above
+2. Open **two browser windows** side by side, both at http://localhost:5173
+3. Both windows will show the same live simulation state
+4. The "Connected Users" counter in the stats bar will show 2
+5. In one window, select a resource and assign it to an incident
+6. Watch the assignment appear instantly in the other window
+7. Try assigning the same resource from both windows at the same time — the backend will resolve the conflict by picking the higher-severity incident
+8. The activity feed in both windows will show a "conflict" entry when this happens
+
+This demonstrates the full real-time sync: every state change on the backend is broadcast to all connected clients within ~100ms.
