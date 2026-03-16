@@ -20,10 +20,6 @@ def clear_pending() -> None:
     _pending_assigns.clear()
 
 
-def get_pending(resource_id: str) -> list[UserAction]:
-    return _pending_assigns.get(resource_id, [])
-
-
 def resolve_conflict(resource_id: str, game_state: GameState) -> tuple[UserAction, list[UserAction]]:
     actions = _pending_assigns.get(resource_id, [])
     if len(actions) <= 1:

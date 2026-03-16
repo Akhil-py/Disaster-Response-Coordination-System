@@ -166,16 +166,6 @@ def record_assignment_time(incident_id: str) -> None:
     _assignment_times[incident_id] = time.time()
 
 
-def get_stats(game_state: GameState) -> dict:
-    return {
-        "lives_saved": game_state.lives_saved,
-        "lives_lost": game_state.lives_lost,
-        "total_incidents": game_state.total_incidents,
-        "resolved_incidents": game_state.resolved_incidents,
-        "active_incidents": len(game_state.incidents),
-    }
-
-
 async def simulation_loop(game_state: GameState) -> None:
     while True:
         await asyncio.sleep(TICK_INTERVAL)
